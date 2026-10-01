@@ -1,0 +1,839 @@
+<title>竹つなぎ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=M+PLUS+1p:wght@400;500;700&display=swap">
+<style>
+/* Layout: one phone-width app column (header / scrolling view / action bar / tab nav), centered on wide screens */
+:root{
+  --outer:#dfe8d8;
+  --bg:#f2f6ee;
+  --surface:#ffffff;
+  --ink:#1d2b20;
+  --muted:#5b6b5e;
+  --line:#dae4d3;
+  --bamboo:#2d6a3e;
+  --bamboo-soft:#e0eed9;
+  --on-bamboo:#ffffff;
+  --leaf:#7fae2e;
+  --sun:#c98512;
+  --sun-soft:#fbefd6;
+  --danger:#b3412f;
+  --map-land:#e6efd9;
+  --map-hill:#cfe0bd;
+  --map-sea:#bcd9e3;
+  --map-road:#ffffff;
+  --map-text:#6d7f70;
+  --shadow:0 1px 2px rgba(29,43,32,.06),0 4px 14px rgba(29,43,32,.06);
+  --f-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --f-body:"M PLUS 1p","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --outer:#0c110d;--bg:#121914;--surface:#1a241d;--ink:#e4ede2;--muted:#9baa9d;--line:#2a392e;
+  --bamboo:#72c488;--bamboo-soft:#20362a;--on-bamboo:#0d1a11;--leaf:#a5d45a;--sun:#f0b650;--sun-soft:#3a2f18;--danger:#f08a78;
+  --map-land:#1d2a20;--map-hill:#24362a;--map-sea:#1c3340;--map-road:#33453a;--map-text:#8a9c8d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --outer:#0c110d;--bg:#121914;--surface:#1a241d;--ink:#e4ede2;--muted:#9baa9d;--line:#2a392e;
+  --bamboo:#72c488;--bamboo-soft:#20362a;--on-bamboo:#0d1a11;--leaf:#a5d45a;--sun:#f0b650;--sun-soft:#3a2f18;--danger:#f08a78;
+  --map-land:#1d2a20;--map-hill:#24362a;--map-sea:#1c3340;--map-road:#33453a;--map-text:#8a9c8d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);color-scheme:dark}
+
+*{box-sizing:border-box}
+html{height:100%}
+body{height:100%;margin:0;background:var(--outer);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;display:flex;justify-content:center}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.35}
+
+.app{position:relative;width:100%;max-width:440px;height:100%;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+@media (min-width:480px){.app{box-shadow:0 0 0 1px var(--line),0 10px 40px rgba(0,0,0,.12)}}
+
+.topbar{display:flex;align-items:center;gap:8px;min-height:56px;padding:8px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+.topbar h1{font-size:18px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand{display:flex;align-items:center;gap:8px;color:var(--bamboo)}
+.brand span{font-family:var(--f-display);font-weight:900;font-size:19px;letter-spacing:.04em}
+.icon-btn{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:0;background:transparent;margin-left:-8px}
+.icon-btn:hover{background:var(--bamboo-soft)}
+.pt-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;background:var(--sun-soft);color:var(--sun);font-weight:700;font-size:13px;border:0;font-variant-numeric:tabular-nums}
+
+#view{flex:1;overflow-y:auto;padding:16px 16px 28px;display:flex;flex-direction:column;gap:20px}
+#action{padding:12px 16px;background:var(--surface);border-top:1px solid var(--line)}
+.tabnav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabnav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;font-size:11px;color:var(--muted)}
+.tabnav button[aria-current="page"]{color:var(--bamboo);font-weight:700}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;padding:10px 18px;border-radius:12px;border:0;font-weight:700;font-size:16px;background:var(--bamboo);color:var(--on-bamboo)}
+.btn:hover{filter:brightness(1.06)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.ghost{background:var(--surface);color:var(--bamboo);box-shadow:inset 0 0 0 1.5px var(--bamboo)}
+.btn.small{min-height:38px;font-size:14px;padding:6px 14px;width:auto;border-radius:10px}
+.btn.sun{background:var(--sun);color:var(--on-bamboo)}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+/* home */
+.hero{position:relative;border-radius:20px;overflow:hidden;background:var(--bamboo);color:var(--on-bamboo);padding:26px 20px 22px;min-height:230px;display:flex;flex-direction:column;justify-content:flex-end}
+.hero svg.art{position:absolute;inset:0;width:100%;height:100%}
+.hero .copy{position:relative}
+.hero h2{font-size:26px;font-weight:900;letter-spacing:.02em}
+.hero p{margin:6px 0 0;font-size:14px;opacity:.92}
+.main-actions{display:grid;gap:12px}
+.big-choice{display:flex;align-items:center;gap:14px;padding:18px;border-radius:18px;border:0;text-align:left;background:var(--surface);box-shadow:var(--shadow);width:100%}
+.big-choice .ic{flex:none;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:var(--bamboo-soft);color:var(--bamboo)}
+.big-choice.primary{background:var(--bamboo);color:var(--on-bamboo)}
+.big-choice.primary .ic{background:rgba(255,255,255,.16);color:var(--on-bamboo)}
+.big-choice b{display:block;font-family:var(--f-display);font-size:19px}
+.big-choice small{display:block;font-size:13px;opacity:.8}
+.big-choice .arr{margin-left:auto;flex:none}
+.section-title{font-size:15px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:10px}
+.steps{display:grid;gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--surface);border-radius:var(--r);border:1px solid var(--line)}
+.steps li::before{counter-increment:s;content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--bamboo-soft);color:var(--bamboo);font-weight:700;display:grid;place-items:center;font-size:13px}
+.steps b{display:block}
+.steps span{font-size:13px;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);text-align:center}
+
+/* map */
+.map{position:relative;width:100%;max-width:100%;aspect-ratio:360/250;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--map-land)}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;transform:translate(-50%,-100%);border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center}
+.pin .tag{background:var(--surface);color:var(--bamboo);font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;box-shadow:var(--shadow);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pin svg{position:static;width:26px;height:30px}
+.pin.sel .tag{background:var(--bamboo);color:var(--on-bamboo)}
+.pin.sel svg{transform:scale(1.2);transform-origin:bottom}
+.pin.mine .tag{color:var(--sun)}
+.me{position:absolute;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#2f7fd1;border:3px solid #fff;box-shadow:0 0 0 6px rgba(47,127,209,.22)}
+.map-legend{position:absolute;left:8px;bottom:8px;font-size:11px;background:var(--surface);padding:2px 8px;border-radius:8px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.map-legend i{width:9px;height:9px;border-radius:50%;background:#2f7fd1;display:inline-block}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--bamboo);border-color:var(--bamboo);color:var(--on-bamboo)}
+.sort{margin-left:auto;padding:6px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-size:13px}
+.count{font-size:13px;color:var(--muted)}
+
+.cards{display:grid;gap:12px}
+.card{display:flex;gap:12px;padding:10px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);border:2px solid transparent;text-align:left;width:100%}
+.card.sel{border-color:var(--bamboo)}
+.card .thumb{flex:none;width:92px;height:92px;border-radius:10px;overflow:hidden}
+.thumb svg,.thumb img{width:100%;height:100%;display:block;object-fit:cover}
+.card .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.card h3{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px;font-variant-numeric:tabular-nums}
+.tasks{display:flex;flex-wrap:wrap;gap:4px}
+.task{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:1px 8px;border-radius:6px;background:var(--bamboo-soft);color:var(--bamboo)}
+.card .foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;font-size:12.5px}
+.pts{color:var(--sun);font-weight:700;font-variant-numeric:tabular-nums}
+.pts big{font-size:18px;font-family:var(--f-display)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);background:var(--surface);border-radius:var(--r);border:1px dashed var(--line)}
+
+/* detail */
+.banner{border-radius:18px;overflow:hidden;aspect-ratio:16/9;max-width:100%}
+.banner svg,.banner img{width:100%;height:100%;display:block;object-fit:cover}
+.d-head{display:flex;flex-direction:column;gap:6px}
+.d-head h2{font-size:23px}
+.loc{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:14px}
+.panel{background:var(--surface);border-radius:var(--r);padding:4px 16px;border:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:7.5em 1fr;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.kv:last-child{border-bottom:0}
+.kv dt{font-size:13px;color:var(--muted);font-weight:500}
+.kv dd{margin:0;font-weight:500;min-width:0;font-variant-numeric:tabular-nums}
+dl{margin:0}
+.bar{height:8px;border-radius:99px;background:var(--bamboo-soft);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--bamboo);border-radius:99px}
+.reward{display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r);background:var(--sun-soft)}
+.reward .num{font-family:var(--f-display);font-weight:900;font-size:34px;color:var(--sun);line-height:1;font-variant-numeric:tabular-nums}
+.reward .num small{font-size:16px;margin-left:2px}
+.reward p{margin:0;font-size:13px;color:var(--ink)}
+.task-list{display:grid;gap:8px}
+.task-row{display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--surface);border-radius:12px;border:1px solid var(--line)}
+.task-row .ic{flex:none;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--bamboo-soft);color:var(--bamboo)}
+.task-row b{display:block}
+.task-row span{font-size:13px;color:var(--muted)}
+.msg{background:var(--surface);border-radius:var(--r);padding:14px 16px;border:1px solid var(--line);font-size:14px}
+.msg .who{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--bamboo-soft);color:var(--bamboo);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.bring{font-size:13px;color:var(--muted);margin:8px 0 0}
+
+/* form */
+form{display:flex;flex-direction:column;gap:18px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field>.lbl{font-weight:700;font-size:14px}
+.req{font-size:11px;color:var(--on-bamboo);background:var(--danger);border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:2px;font-weight:700}
+.hint{font-size:12px;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],input[type=time],select.input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);min-height:46px}
+input:focus,select:focus,textarea:focus{border-color:var(--bamboo);outline:none}
+textarea{min-height:80px;resize:vertical}
+.pair{display:flex;gap:8px}
+.pair>*{min-width:0}
+.pair>:first-child{flex:1}
+.pair>select{flex:none;width:auto}
+.checks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.check{position:relative}
+.check input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.check span{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:14px;color:var(--muted)}
+.check input:checked+span{border-color:var(--bamboo);background:var(--bamboo-soft);color:var(--bamboo)}
+.check input:focus-visible+span{outline:3px solid var(--leaf);outline-offset:2px}
+.photo-drop{position:relative;display:grid;place-items:center;aspect-ratio:16/9;max-width:100%;border-radius:14px;border:2px dashed var(--line);background:var(--surface);color:var(--muted);overflow:hidden;text-align:center;font-size:14px}
+.photo-drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.photo-drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.stepper{display:flex;align-items:center;gap:0;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);width:max-content}
+.stepper button{width:46px;height:44px;border:0;background:none;font-size:22px;color:var(--bamboo)}
+.stepper input{width:64px;border:0;text-align:center;min-height:44px;background:none;font-weight:700;font-size:17px}
+.map.pick{cursor:crosshair}
+.err{color:var(--danger);font-size:13px;font-weight:700}
+.fill-demo{align-self:flex-start}
+
+/* mypage */
+.profile{display:flex;align-items:center;gap:12px}
+.profile .avatar{width:48px;height:48px;font-size:18px}
+.profile b{font-family:var(--f-display);font-size:18px;display:block}
+.profile span{font-size:13px;color:var(--muted)}
+.point-card{border-radius:18px;padding:18px;background:var(--bamboo);color:var(--on-bamboo);display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.point-card .lab{font-size:13px;opacity:.85}
+.point-card .val{font-family:var(--f-display);font-weight:900;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.point-card .val small{font-size:18px;margin-left:4px}
+.point-card .btn{background:var(--on-bamboo);color:var(--bamboo);min-height:42px;font-size:14px}
+.point-card svg.deco{position:absolute;right:-10px;top:-10px;width:130px;height:130px;opacity:.18}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border-radius:12px;padding:10px;text-align:center;border:1px solid var(--line)}
+.stat b{display:block;font-family:var(--f-display);font-size:22px;color:var(--bamboo);font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--bamboo-soft);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:none;padding:8px 4px;border-radius:9px;font-weight:700;font-size:13.5px;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--bamboo);box-shadow:var(--shadow)}
+.list{display:grid;gap:10px}
+.item{background:var(--surface);border-radius:var(--r);padding:14px;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.item-top h3{font-size:16px;min-width:0}
+.status{flex:none;font-size:12px;font-weight:700;padding:2px 10px;border-radius:99px}
+.st-pending{background:var(--sun-soft);color:var(--sun)}
+.st-approved{background:var(--bamboo-soft);color:var(--bamboo)}
+.st-done{background:var(--line);color:var(--muted)}
+.demo-tag{font-size:10.5px;font-weight:700;border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:4px;opacity:.8}
+.applicants{display:grid;gap:6px;border-top:1px dashed var(--line);padding-top:8px}
+.applicant{display:flex;align-items:center;gap:8px;font-size:14px}
+.applicant .avatar{width:28px;height:28px;font-size:12px}
+.applicant .nm{flex:1;min-width:0}
+.timeline{list-style:none;margin:0;padding:0;display:grid}
+.timeline li{display:grid;grid-template-columns:4.6em 1fr auto;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line);align-items:baseline;font-size:14px}
+.timeline time{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.timeline .plus{color:var(--sun);font-weight:700;font-variant-numeric:tabular-nums}
+.timeline .minus{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* exchange */
+.goods{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good{background:var(--surface);border-radius:var(--r);border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column}
+.good .pic{aspect-ratio:4/3;display:grid;place-items:center;background:var(--bamboo-soft);color:var(--bamboo)}
+.good .inf{padding:10px;display:flex;flex-direction:column;gap:4px;flex:1}
+.good b{font-size:14.5px;line-height:1.4}
+.good small{font-size:11.5px;color:var(--muted)}
+.good .btn{margin-top:auto}
+
+/* done screen */
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-top:28px}
+.done .badge{width:88px;height:88px;border-radius:50%;background:var(--bamboo-soft);color:var(--bamboo);display:grid;place-items:center}
+.done h2{font-size:22px}
+.done p{margin:0;color:var(--muted);max-width:30em}
+.done .btns{display:grid;gap:10px;width:100%;margin-top:10px}
+
+/* sheet & toast */
+.scrim{position:absolute;inset:0;background:rgba(10,20,12,.45);display:flex;align-items:flex-end;z-index:20}
+.sheet{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-height:90%;overflow:auto}
+.sheet h2{font-size:19px}
+.sheet .grab{width:40px;height:4px;border-radius:9px;background:var(--line);align-self:center}
+.sum{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;display:grid;gap:4px}
+.toast{position:absolute;left:16px;right:16px;bottom:84px;z-index:30;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;font-weight:500;font-size:14px;box-shadow:var(--shadow);transition:opacity .25s,transform .25s}
+.toast.hide{opacity:0;transform:translateY(8px);pointer-events:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="app" id="app">
+  <header class="topbar" id="topbar"></header>
+  <main id="view" aria-live="polite"></main>
+  <div id="action" hidden></div>
+  <nav class="tabnav" id="tabnav" aria-label="メインメニュー"></nav>
+  <div id="sheet"></div>
+  <div class="toast hide" id="toast" role="status"></div>
+</div>
+
+<script>
+/* ---------- データ（サンプル） ---------- */
+const TODAY = '2026-09-30';
+const KM_PER_UNIT = 0.03;           // 地図1単位 = 30m（デモ用の縮尺）
+const ME = { x: 205, y: 135 };      // 現在地（デモ用の仮の位置）
+const TSUBO_TAN = 991.7;            // 1反 ≒ 991.7㎡
+
+const TASKS = {
+  '伐採': { desc: '竹をのこぎりで切り倒す' },
+  '整備': { desc: '枝払い・下草刈り・通り道づくり' },
+  '運搬': { desc: '切った竹を運び出して積み込む' },
+};
+
+let seq = 100;
+const state = {
+  screen: 'home', params: {}, stack: [],
+  filter: new Set(), sort: 'near', selected: null,
+  myTab: 'applied', sheet: null, regPhoto: null, regPin: { x: 150, y: 130 },
+  points: 350,
+  groves: [
+    { id: 1, name: '見能林町の裏山竹林', addr: '阿南市見能林町（サンプル）', x: 240, y: 118, size: 1200, tasks: ['伐採', '運搬'], people: 4, joined: 1, date: '2026-10-11', time: '09:00', hours: 3, pt: 300, gift: '切った竹は持ち帰りOK', owner: '佐藤さん', seed: 3,
+      note: '裏山の竹が家の屋根まで伸びてきて困っています。道路側の20本ほどを切ってもらえると助かります。' },
+    { id: 2, name: '富岡町の竹やぶ', addr: '阿南市富岡町（サンプル）', x: 188, y: 96, size: 600, tasks: ['整備'], people: 2, joined: 0, date: '2026-10-18', time: '13:00', hours: 2, pt: 150, gift: '', owner: '岡田さん', seed: 7,
+      note: '枯れた竹が倒れて通り道がふさがっています。片付けと枝払いをお願いしたいです。' },
+    { id: 3, name: '那賀川沿いの竹林', addr: '阿南市那賀川町（サンプル）', x: 168, y: 202, size: 3000, tasks: ['伐採', '整備', '運搬'], people: 8, joined: 5, date: '2026-10-25', time: '08:30', hours: 5, pt: 500, gift: 'お昼ごはん付き', owner: '那賀川町 竹林の会', seed: 11,
+      note: '毎年みんなで整備している竹林です。初めての方も大歓迎。道具は貸し出します。' },
+    { id: 4, name: '桑野町の竹林', addr: '阿南市桑野町（サンプル）', x: 95, y: 92, size: 2000, tasks: ['伐採'], people: 5, joined: 2, date: '2026-11-01', time: '09:00', hours: 4, pt: 400, gift: '謝礼 3,000円', owner: '森本さん', seed: 5,
+      note: '竹が畑まで広がってきました。畑との境目の竹をまとめて切りたいです。' },
+    { id: 5, name: '羽ノ浦町の竹林', addr: '阿南市羽ノ浦町（サンプル）', x: 108, y: 214, size: 800, tasks: ['運搬'], people: 3, joined: 1, date: '2026-11-08', time: '10:00', hours: 2, pt: 200, gift: '軽トラックあり', owner: '川口さん', seed: 13,
+      note: '先月切った竹が山積みになっています。軽トラへの積み込みを手伝ってください。' },
+    { id: 6, name: '福井町の山の竹林', addr: '阿南市福井町（サンプル）', x: 58, y: 42, size: 5000, tasks: ['伐採', '整備'], people: 10, joined: 3, date: '2026-11-15', time: '08:00', hours: 6, pt: 600, gift: 'たけのこ掘り体験付き（春）', owner: '福井地区 自治会', seed: 17,
+      note: '広い竹林で長年手入れができていません。少しずつでも明るい竹林に戻したいです。' },
+    { id: 7, name: '宝田町の竹林', addr: '阿南市宝田町（サンプル）', x: 145, y: 140, size: 900, tasks: ['伐採'], people: 3, joined: 2, date: '2026-10-19', time: '09:30', hours: 3, pt: 250, gift: '', owner: 'あなた', mine: true, seed: 19,
+      note: '祖父から受け継いだ竹林です。手が回らず困っています。',
+      applicants: [{ name: '田中さん（高専2年）', ok: true }, { name: '森さん', ok: false }] },
+  ],
+  applications: [],   // {id, groveId, status: pending|approved|done, msg}
+  history: [
+    { date: '2026-09-14', text: '富岡町の竹林整備に参加', pt: 200 },
+    { date: '2026-08-24', text: '那賀川町で竹の運搬に参加', pt: 150 },
+  ],
+};
+
+const GOODS = [
+  { id: 'g1', name: '竹炭（1kg）', from: '地元の竹炭工房（例）', pt: 300, icon: 'charcoal' },
+  { id: 'g2', name: '国産メンマ（瓶）', from: '竹林の会でつくったメンマ（例）', pt: 500, icon: 'jar' },
+  { id: 'g3', name: '竹のコップ', from: '竹細工の店（例）', pt: 800, icon: 'cup' },
+  { id: 'g4', name: '竹かご', from: '竹細工の店（例）', pt: 1500, icon: 'basket' },
+];
+
+/* ---------- ユーティリティ ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = n => Number(n).toLocaleString('ja-JP');
+const grove = id => state.groves.find(g => g.id === id);
+const dist = g => Math.hypot(g.x - ME.x, g.y - ME.y) * KM_PER_UNIT;
+const distLabel = g => dist(g).toFixed(1) + 'km';
+const WD = ['日', '月', '火', '水', '木', '金', '土'];
+function fmtDate(d, t) {
+  const [y, m, day] = d.split('-').map(Number);
+  const w = WD[new Date(y, m - 1, day).getDay()];
+  return `${m}月${day}日(${w})` + (t ? ` ${Number(t.slice(0, 2))}:${t.slice(3)}〜` : '');
+}
+const shortDate = d => { const [, m, day] = d.split('-').map(Number); return `${m}/${day}`; };
+const areaLabel = m2 => `${num(m2)}㎡（約${(m2 / TSUBO_TAN).toFixed(1)}反）`;
+const appFor = gid => state.applications.find(a => a.groveId === gid);
+const isFull = g => g.joined >= g.people;
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.remove('hide');
+  clearTimeout(toast.tm); toast.tm = setTimeout(() => t.classList.add('hide'), 2600);
+}
+
+/* ---------- アイコン ---------- */
+const I = {
+  back: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  arrow: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  home: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>',
+  map: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0113 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  plus: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8v8M8 12h8"/></svg>',
+  user: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" stroke-linecap="round"/></svg>',
+  bamboo: '<svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M11 3v26M21 3v26M8 10h6M8 19h6M18 7h6M18 16h6M18 25h6"/><path d="M11 10c-3-1-5-3-6-5M21 16c3-1 5-3 6-6" stroke-width="2"/></svg>',
+  pin: c => `<svg viewBox="0 0 26 30"><path d="M13 29s10-9 10-16a10 10 0 10-20 0c0 7 10 16 10 16z" fill="${c}" stroke="#fff" stroke-width="2"/><path d="M10.5 7v11M15.5 7v11M9 11h3M14 13h3" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+  check: '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  coin: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M9.5 8v8M14.5 8v8M8 12h8" stroke-linecap="round"/></svg>',
+  loc: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0113 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  camera: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+};
+const TASK_ICON = {
+  '伐採': s => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20L15 9"/><path d="M13 7l4 4 3-3-4-4z"/><path d="M6.5 17.5l1.5 1.5M9 15l1.5 1.5M11.5 12.5L13 14"/></svg>`,
+  '整備': s => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 13c-4 0-7-3-7-8 4 0 7 3 7 8zM12 11c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg>`,
+  '運搬': s => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></svg>`,
+};
+const GOOD_ICON = {
+  charcoal: '<svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="8" y="16" width="32" height="8" rx="4"/><rect x="12" y="26" width="28" height="8" rx="4"/><path d="M14 20h2M22 20h2M30 20h2M18 30h2M26 30h2"/></svg>',
+  jar: '<svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="15" y="8" width="18" height="6" rx="2"/><path d="M13 16h22v22a4 4 0 01-4 4H17a4 4 0 01-4-4z"/><path d="M19 24v10M24 22v12M29 24v10" stroke-linecap="round"/></svg>',
+  cup: '<svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 8h20v32H14z"/><path d="M14 18h20M14 30h20"/></svg>',
+  basket: '<svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M8 20h32l-4 20H12z"/><path d="M16 20c0-8 16-8 16 0" stroke-linecap="round"/><path d="M11 27h26M12 33h24M18 20l2 20M30 20l-2 20M24 20v20"/></svg>',
+};
+
+/* 竹林のイラスト写真（シードで少しずつ違う絵にする） */
+function photo(seed) {
+  let s = seed * 9301 + 49297;
+  const r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const sky = ['#cfe6c0', '#d9ecc6', '#c6e2c9', '#e1eec2'][seed % 4];
+  let stalks = '';
+  for (let i = 0; i < 11; i++) {
+    const x = 6 + i * 14.5 + r() * 8, w = 3 + r() * 3.5, shade = ['#5e9a3f', '#4d8a37', '#6fae47', '#3f7a31'][Math.floor(r() * 4)];
+    stalks += `<rect x="${x.toFixed(1)}" y="-2" width="${w.toFixed(1)}" height="104" fill="${shade}"/>`;
+    for (let y = 12 + r() * 14; y < 100; y += 22 + r() * 6) stalks += `<rect x="${(x - .6).toFixed(1)}" y="${y.toFixed(1)}" width="${(w + 1.2).toFixed(1)}" height="1.6" fill="#2f5e25" opacity=".7"/>`;
+  }
+  let leaves = '';
+  for (let i = 0; i < 26; i++) {
+    const x = r() * 160, y = r() * 45, a = -40 + r() * 80;
+    leaves += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="9" ry="2.4" fill="${r() > .5 ? '#7cb84e' : '#98c95c'}" transform="rotate(${a.toFixed(0)} ${x.toFixed(0)} ${y.toFixed(0)})"/>`;
+  }
+  return `<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="160" height="100" fill="${sky}"/><rect y="82" width="160" height="18" fill="#a9c77d"/>${stalks}${leaves}</svg>`;
+}
+const groveImg = g => g.photo ? `<img src="${g.photo}" alt="">` : photo(g.seed);
+
+/* 地図（阿南市周辺をイメージしたイラスト地図） */
+function mapSVG() {
+  return `<svg viewBox="0 0 360 250" preserveAspectRatio="none" aria-hidden="true">
+    <rect width="360" height="250" fill="var(--map-land)"/>
+    <path d="M0 0h150c-20 20-40 22-70 40S20 70 0 78z" fill="var(--map-hill)"/>
+    <path d="M0 150c30-8 50 10 70 30s-40 40-70 45z" fill="var(--map-hill)" opacity=".7"/>
+    <path d="M300 0c-12 50 8 90-6 135s4 80-8 115h74V0z" fill="var(--map-sea)"/>
+    <path d="M0 190c60-18 110 12 170 0s90-8 122 0" stroke="var(--map-sea)" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M0 118c50 6 80-14 130-6s110 8 168-6" stroke="var(--map-sea)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M212 0c-8 60 6 120-4 250" stroke="var(--map-road)" stroke-width="5" fill="none"/>
+    <path d="M0 158c80-6 160 6 290-10" stroke="var(--map-road)" stroke-width="3.5" fill="none"/>
+    <path d="M60 250c20-60 60-110 150-150" stroke="var(--map-road)" stroke-width="3" fill="none"/>
+    <text x="30" y="205" font-size="9" fill="var(--map-text)">那賀川</text>
+    <text x="40" y="112" font-size="9" fill="var(--map-text)">桑野川</text>
+    <text x="318" y="60" font-size="9" fill="var(--map-text)">紀伊水道</text>
+  </svg>`;
+}
+const pct = (x, y) => `left:${(x / 360 * 100).toFixed(2)}%;top:${(y / 250 * 100).toFixed(2)}%`;
+
+/* ---------- 画面遷移 ---------- */
+function go(screen, params = {}) {
+  state.stack.push({ screen: state.screen, params: state.params });
+  state.screen = screen; state.params = params; state.sheet = null;
+  render(true);
+}
+function tab(screen) { state.stack = []; state.screen = screen; state.params = {}; state.sheet = null; render(true); }
+function back() {
+  const p = state.stack.pop();
+  if (p) { state.screen = p.screen; state.params = p.params; } else state.screen = 'home';
+  state.sheet = null; render(true);
+}
+
+const TITLES = { home: '', search: '竹林を探す', detail: '竹林の詳細', register: '竹林を登録する', mypage: 'マイページ', exchange: 'ポイント交換', applied: '応募完了', registered: '登録完了' };
+const NAV_OF = { home: 'home', search: 'search', detail: 'search', applied: 'search', register: 'register', registered: 'register', mypage: 'mypage', exchange: 'mypage' };
+
+function render(resetScroll) {
+  const s = state.screen;
+  const topbar = $('#topbar');
+  if (s === 'home') {
+    topbar.innerHTML = `<div class="brand">${I.bamboo}<span>竹つなぎ</span></div><div style="flex:1"></div>
+      <button class="pt-chip" data-act="tab" data-to="mypage">${I.coin}${num(state.points)} pt</button>`;
+  } else {
+    topbar.innerHTML = `<button class="icon-btn" data-act="back" aria-label="戻る">${I.back}</button><h1>${TITLES[s]}</h1>
+      <button class="pt-chip" data-act="tab" data-to="mypage">${I.coin}${num(state.points)} pt</button>`;
+  }
+  $('#view').innerHTML = SCREENS[s]();
+  const act = ACTIONS[s] ? ACTIONS[s]() : '';
+  $('#action').innerHTML = act; $('#action').hidden = !act;
+  const cur = NAV_OF[s];
+  $('#tabnav').innerHTML = [['home', 'ホーム', I.home], ['search', '探す', I.map], ['register', '登録する', I.plus], ['mypage', 'マイページ', I.user]]
+    .map(([k, l, ic]) => `<button data-act="tab" data-to="${k}" ${cur === k ? 'aria-current="page"' : ''}>${ic}${l}</button>`).join('');
+  renderSheet();
+  if (resetScroll) $('#view').scrollTop = 0;
+  if (s === 'register') bindRegister();
+}
+
+/* ---------- 各画面 ---------- */
+const SCREENS = {
+  home() {
+    const open = state.groves.filter(g => !g.mine && !isFull(g)).length;
+    return `
+    <section class="hero">
+      <svg class="art" viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="rgba(255,255,255,.13)">
+          <rect x="250" y="0" width="12" height="240"/><rect x="285" y="0" width="16" height="240"/><rect x="330" y="0" width="10" height="240"/><rect x="362" y="0" width="14" height="240"/>
+        </g>
+        <g fill="rgba(0,0,0,.14)"><rect x="248" y="60" width="16" height="3"/><rect x="248" y="140" width="16" height="3"/><rect x="283" y="40" width="20" height="3"/><rect x="283" y="120" width="20" height="3"/><rect x="328" y="80" width="14" height="3"/><rect x="360" y="30" width="18" height="3"/><rect x="360" y="150" width="18" height="3"/></g>
+        <g fill="rgba(255,255,255,.2)"><ellipse cx="230" cy="40" rx="26" ry="6" transform="rotate(-25 230 40)"/><ellipse cx="320" cy="20" rx="24" ry="5" transform="rotate(20 320 20)"/><ellipse cx="350" cy="110" rx="22" ry="5" transform="rotate(-15 350 110)"/></g>
+      </svg>
+      <div class="copy">
+        <h2>放置竹林を、<br>地域の手で明るく。</h2>
+        <p>竹を切ってほしい人と、竹を切りたい人をつなぐアプリです。</p>
+      </div>
+    </section>
+    <div class="main-actions">
+      <button class="big-choice primary" data-act="tab" data-to="search">
+        <span class="ic">${I.map}</span><span><b>竹林を探す</b><small>作業したい方・竹を使いたい方</small></span><span class="arr">${I.arrow}</span>
+      </button>
+      <button class="big-choice" data-act="tab" data-to="register">
+        <span class="ic">${I.plus}</span><span><b>竹林を登録する</b><small>竹を切ってほしい竹林の所有者の方</small></span><span class="arr">${I.arrow}</span>
+      </button>
+    </div>
+    <section>
+      <div class="section-title">使い方</div>
+      <ol class="steps">
+        <li><div><b>所有者が竹林を登録</b><span>場所・作業内容・人数・日時を入力します</span></div></li>
+        <li><div><b>近くの竹林に応募</b><span>地図から探して、できそうな作業に応募します</span></div></li>
+        <li><div><b>作業してポイントを獲得</b><span>ポイントは竹炭やメンマなど地域の品と交換できます</span></div></li>
+      </ol>
+    </section>
+    <p class="note">いま募集中の竹林：${open}件　／　表示中のデータはすべてサンプルです</p>`;
+  },
+
+  search() {
+    let list = state.groves.filter(g => state.filter.size === 0 || g.tasks.some(t => state.filter.has(t)));
+    const sorters = { near: (a, b) => dist(a) - dist(b), date: (a, b) => a.date.localeCompare(b.date), pt: (a, b) => b.pt - a.pt };
+    list.sort(sorters[state.sort]);
+    const pins = list.map(g => `<button class="pin ${state.selected === g.id ? 'sel' : ''} ${g.mine ? 'mine' : ''}" style="${pct(g.x, g.y)}" data-act="pin" data-id="${g.id}" aria-label="${esc(g.name)}">
+        <span class="tag">${g.pt}pt</span>${I.pin(g.mine ? 'var(--sun)' : 'var(--bamboo)')}</button>`).join('');
+    const cards = list.map(g => `
+      <button class="card ${state.selected === g.id ? 'sel' : ''}" data-act="detail" data-id="${g.id}" id="card-${g.id}">
+        <span class="thumb">${groveImg(g)}</span>
+        <span class="body">
+          <h3>${esc(g.name)}</h3>
+          <span class="meta"><span>現在地から ${distLabel(g)}</span><span>${fmtDate(g.date)}</span></span>
+          <span class="tasks">${g.tasks.map(t => `<span class="task">${TASK_ICON[t](13)}${t}</span>`).join('')}</span>
+          <span class="foot"><span>${isFull(g) ? '<b style="color:var(--muted)">定員に達しました</b>' : `あと <b>${g.people - g.joined}</b> 名募集`}</span>
+          <span class="pts"><big>${g.pt}</big> pt</span></span>
+        </span>
+      </button>`).join('');
+    return `
+      <div class="map">${mapSVG()}<span class="me" style="${pct(ME.x, ME.y)}"></span>${pins}
+        <span class="map-legend"><i></i>現在地（デモ用の仮の位置）</span></div>
+      <div class="toolbar" role="group" aria-label="作業内容で絞り込み">
+        <button class="chip" data-act="filter" data-t="" aria-pressed="${state.filter.size === 0}">すべて</button>
+        ${Object.keys(TASKS).map(t => `<button class="chip" data-act="filter" data-t="${t}" aria-pressed="${state.filter.has(t)}">${TASK_ICON[t](15)}${t}</button>`).join('')}
+      </div>
+      <div class="toolbar">
+        <span class="count">${list.length}件の竹林</span>
+        <select class="sort" id="sort" aria-label="並び替え">
+          <option value="near" ${state.sort === 'near' ? 'selected' : ''}>現在地から近い順</option>
+          <option value="date" ${state.sort === 'date' ? 'selected' : ''}>日付が早い順</option>
+          <option value="pt" ${state.sort === 'pt' ? 'selected' : ''}>ポイントが多い順</option>
+        </select>
+      </div>
+      <div class="cards">${cards || '<div class="empty">この作業内容の竹林はまだありません。</div>'}</div>`;
+  },
+
+  detail() {
+    const g = grove(state.params.id);
+    const rate = Math.min(100, g.joined / g.people * 100);
+    return `
+      <div class="banner">${groveImg(g)}</div>
+      <div class="d-head">
+        <div class="tasks">${g.tasks.map(t => `<span class="task">${TASK_ICON[t](13)}${t}</span>`).join('')}</div>
+        <h2>${esc(g.name)}</h2>
+        <div class="loc">${I.loc}${esc(g.addr)}・現在地から ${distLabel(g)}</div>
+      </div>
+      <div class="reward">
+        <div class="num">${g.pt}<small>pt</small></div>
+        <p><b>作業完了でもらえるポイント</b><br>${g.gift ? esc(g.gift) : '竹炭・メンマなど地域の品と交換できます'}</p>
+      </div>
+      <dl class="panel">
+        <div class="kv"><dt>希望日時</dt><dd>${fmtDate(g.date, g.time)}</dd></div>
+        <div class="kv"><dt>作業時間の目安</dt><dd>約${g.hours}時間</dd></div>
+        <div class="kv"><dt>必要人数</dt><dd>${g.people}名（${g.joined}名 参加予定）<div class="bar"><i style="width:${rate}%"></i></div></dd></div>
+        <div class="kv"><dt>竹林の広さ</dt><dd>${areaLabel(g.size)}</dd></div>
+        <div class="kv"><dt>所有者</dt><dd>${esc(g.owner)}</dd></div>
+      </dl>
+      <section>
+        <div class="section-title">必要な作業</div>
+        <div class="task-list">${g.tasks.map(t => `<div class="task-row"><span class="ic">${TASK_ICON[t](22)}</span><div><b>${t}</b><span>${TASKS[t].desc}</span></div></div>`).join('')}</div>
+      </section>
+      <section>
+        <div class="section-title">竹林の場所</div>
+        <div class="map">${mapSVG()}<span class="me" style="${pct(ME.x, ME.y)}"></span>
+          <span class="pin sel" style="${pct(g.x, g.y)}"><span class="tag">ここ</span>${I.pin('var(--bamboo)')}</span>
+          <span class="map-legend"><i></i>現在地から ${distLabel(g)}</span></div>
+      </section>
+      ${g.note ? `<div class="msg"><div class="who"><span class="avatar">${esc(g.owner.slice(0, 1))}</span>${esc(g.owner)}からのひとこと</div>${esc(g.note)}
+        <p class="bring">持ち物：軍手・長袖・長ぐつ（のこぎりは貸し出しあり）</p></div>` : ''}`;
+  },
+
+  applied() {
+    const g = grove(state.params.id);
+    return `<div class="done">
+      <div class="badge">${I.check}</div>
+      <h2>応募しました</h2>
+      <p>「${esc(g.name)}」への応募を送りました。所有者の${esc(g.owner)}が承認すると参加が確定します。</p>
+      <div class="sum" style="width:100%;text-align:left">
+        <div>日時：${fmtDate(g.date, g.time)}</div><div>作業：${g.tasks.join('・')}（約${g.hours}時間）</div><div>もらえるポイント：<b class="pts">${g.pt}pt</b></div>
+      </div>
+      <div class="btns">
+        <button class="btn" data-act="tab" data-to="mypage" data-mytab="applied">マイページで確認する</button>
+        <button class="btn ghost" data-act="tab" data-to="search">ほかの竹林を探す</button>
+      </div></div>`;
+  },
+
+  register() {
+    return `
+    <form id="regForm" novalidate>
+      <button type="button" class="btn ghost small fill-demo" data-act="filldemo">発表用のサンプルを入力</button>
+      <div class="field">
+        <label for="r-name">竹林の名前<span class="req">必須</span></label>
+        <input type="text" id="r-name" name="name" placeholder="例：宝田町の裏山の竹林">
+      </div>
+      <div class="field">
+        <label for="r-addr">竹林の場所</label>
+        <input type="text" id="r-addr" name="addr" placeholder="例：阿南市宝田町">
+        <div class="map pick" id="pickMap">${mapSVG()}
+          <span class="pin sel" id="pickPin" style="${pct(state.regPin.x, state.regPin.y)}"><span class="tag">竹林</span>${I.pin('var(--bamboo)')}</span>
+          <span class="map-legend">地図をタップして場所を指定</span></div>
+      </div>
+      <div class="field">
+        <span class="lbl">写真</span>
+        <label class="photo-drop" id="photoDrop">
+          <input type="file" id="r-photo" accept="image/*" aria-label="竹林の写真を選ぶ">
+          ${state.regPhoto ? `<img src="${state.regPhoto}" alt="選んだ写真">` : `<span>${I.camera}<br>タップして写真を選ぶ</span>`}
+        </label>
+      </div>
+      <div class="field">
+        <label for="r-size">竹林の広さ</label>
+        <div class="pair"><input type="number" id="r-size" name="size" min="1" placeholder="例：900" inputmode="decimal">
+          <select class="input" id="r-unit" name="unit" aria-label="単位"><option value="m2">㎡</option><option value="tan">反</option></select></div>
+        <span class="hint">1反 ≒ 約1,000㎡（テニスコート約4面分）</span>
+      </div>
+      <div class="field">
+        <span class="lbl">必要な作業<span class="req">必須</span></span>
+        <div class="checks">${Object.keys(TASKS).map(t => `<label class="check"><input type="checkbox" name="tasks" value="${t}"><span>${TASK_ICON[t](24)}${t}</span></label>`).join('')}</div>
+      </div>
+      <div class="field">
+        <span class="lbl">希望日時<span class="req">必須</span></span>
+        <div class="pair"><input type="date" id="r-date" name="date" min="${TODAY}" aria-label="希望日"><input type="time" id="r-time" name="time" value="09:00" aria-label="開始時刻" style="flex:none;width:8.5em"></div>
+      </div>
+      <div class="field">
+        <label for="r-hours">作業時間の目安</label>
+        <select class="input" id="r-hours" name="hours">${[1, 2, 3, 4, 5, 6].map(h => `<option value="${h}" ${h === 3 ? 'selected' : ''}>約${h}時間</option>`).join('')}</select>
+      </div>
+      <div class="field">
+        <label for="r-people">必要人数</label>
+        <div class="stepper"><button type="button" data-act="step" data-d="-1" aria-label="1人減らす">−</button>
+          <input type="number" id="r-people" name="people" value="3" min="1" max="30"><button type="button" data-act="step" data-d="1" aria-label="1人増やす">＋</button></div>
+      </div>
+      <div class="field">
+        <label for="r-pt">報酬（参加者がもらえるポイント）</label>
+        <select class="input" id="r-pt" name="pt">${[100, 150, 200, 250, 300, 400, 500].map(p => `<option value="${p}" ${p === 200 ? 'selected' : ''}>${p} pt</option>`).join('')}</select>
+        <input type="text" id="r-gift" name="gift" placeholder="そのほかのお礼（任意）例：切った竹は持ち帰りOK">
+      </div>
+      <div class="field">
+        <label for="r-note">参加する人へのひとこと</label>
+        <textarea id="r-note" name="note" placeholder="例：家の裏の竹が伸びすぎて困っています。"></textarea>
+      </div>
+      <div class="err" id="regErr" hidden></div>
+    </form>`;
+  },
+
+  registered() {
+    const g = grove(state.params.id);
+    return `<div class="done">
+      <div class="badge">${I.check}</div>
+      <h2>竹林を登録しました</h2>
+      <p>「${esc(g.name)}」が「竹林を探す」の地図と一覧に表示されます。応募があるとマイページでお知らせします。</p>
+      <div class="btns">
+        <button class="btn" data-act="showmine" data-id="${g.id}">地図で確認する</button>
+        <button class="btn ghost" data-act="tab" data-to="mypage" data-mytab="groves">マイページで確認する</button>
+      </div></div>`;
+  },
+
+  mypage() {
+    const done = state.history.filter(h => h.pt > 0).length;
+    const mine = state.groves.filter(g => g.mine);
+    const tabs = [['applied', '応募した作業'], ['groves', '登録した竹林'], ['history', '活動履歴']];
+    let body = '';
+    if (state.myTab === 'applied') {
+      body = state.applications.length ? state.applications.map(a => {
+        const g = grove(a.groveId);
+        const st = { pending: ['承認待ち', 'st-pending'], approved: ['参加確定', 'st-approved'], done: ['作業完了', 'st-done'] }[a.status];
+        const btn = a.status === 'pending'
+          ? `<button class="btn ghost small" data-act="approveme" data-id="${a.id}"><span class="demo-tag">デモ</span>所有者が承認したことにする</button>`
+          : a.status === 'approved'
+            ? `<button class="btn sun small" data-act="complete" data-id="${a.id}">作業完了を報告して ${g.pt}pt 受け取る</button>`
+            : `<span class="hint">${g.pt}pt を受け取りました</span>`;
+        return `<div class="item"><div class="item-top"><h3>${esc(g.name)}</h3><span class="status ${st[1]}">${st[0]}</span></div>
+          <div class="meta"><span>${fmtDate(g.date, g.time)}</span><span>${g.tasks.join('・')}</span><span class="pts">${g.pt}pt</span></div>${btn}</div>`;
+      }).join('') : `<div class="empty">まだ応募した作業はありません。<br><br><button class="btn small" data-act="tab" data-to="search">竹林を探す</button></div>`;
+    } else if (state.myTab === 'groves') {
+      body = mine.length ? mine.map(g => `<div class="item">
+          <div class="item-top"><h3>${esc(g.name)}</h3><span class="status ${isFull(g) ? 'st-approved' : 'st-pending'}">${isFull(g) ? '人数が集まりました' : '募集中'}</span></div>
+          <div class="meta"><span>${fmtDate(g.date, g.time)}</span><span>${g.tasks.join('・')}</span><span>参加 ${g.joined}/${g.people}名</span></div>
+          <div class="applicants">${(g.applicants || []).length ? g.applicants.map((p, i) => `<div class="applicant"><span class="avatar">${esc(p.name.slice(0, 1))}</span><span class="nm">${esc(p.name)}</span>
+            ${p.ok ? '<span class="status st-approved">承認済み</span>' : `<button class="btn small" data-act="approveapp" data-id="${g.id}" data-i="${i}">承認する</button>`}</div>`).join('') : '<span class="hint">まだ応募はありません</span>'}</div>
+          <button class="btn ghost small" data-act="detail" data-id="${g.id}">掲載内容を見る</button></div>`).join('')
+        : `<div class="empty">まだ登録した竹林はありません。<br><br><button class="btn small" data-act="tab" data-to="register">竹林を登録する</button></div>`;
+    } else {
+      body = `<ul class="timeline">${state.history.map(h => `<li><time>${shortDate(h.date)}</time><span>${esc(h.text)}</span>
+        ${h.pt ? `<span class="${h.pt > 0 ? 'plus' : 'minus'}">${h.pt > 0 ? '+' : '−'}${num(Math.abs(h.pt))}pt</span>` : '<span></span>'}</li>`).join('')}</ul>`;
+    }
+    return `
+      <div class="profile"><span class="avatar">竹</span><div><b>デモユーザーさん</b><span>作業にも参加する竹林所有者</span></div></div>
+      <div class="point-card">
+        <svg class="deco" viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2"><path d="M11 3v26M21 3v26M8 10h6M8 19h6M18 7h6M18 16h6M18 25h6"/></svg>
+        <span class="lab">獲得したポイント</span>
+        <span class="val">${num(state.points)}<small>pt</small></span>
+        <button class="btn" data-act="go" data-to="exchange">地域の品と交換する</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>${done}</b><span>参加した作業</span></div>
+        <div class="stat"><b>${state.applications.filter(a => a.status !== 'done').length}</b><span>応募中・予定</span></div>
+        <div class="stat"><b>${mine.length}</b><span>登録した竹林</span></div>
+      </div>
+      <div class="seg" role="tablist">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${state.myTab === k}" data-act="mytab" data-t="${k}">${l}</button>`).join('')}</div>
+      <div class="list">${body}</div>`;
+  },
+
+  exchange() {
+    return `
+      <p style="margin:0">竹林の整備でためたポイントを、地域でつくられた竹の品と交換できます。<span class="hint">（交換の仕組みはイメージです）</span></p>
+      <div class="goods">${GOODS.map(g => `<div class="good"><div class="pic">${GOOD_ICON[g.icon]}</div>
+        <div class="inf"><b>${g.name}</b><small>${g.from}</small><span class="pts"><big>${num(g.pt)}</big> pt</span>
+        <button class="btn small" data-act="exch" data-id="${g.id}" ${state.points < g.pt ? 'disabled' : ''}>${state.points < g.pt ? `あと${num(g.pt - state.points)}pt` : '交換する'}</button></div></div>`).join('')}</div>`;
+  },
+};
+
+const ACTIONS = {
+  detail() {
+    const g = grove(state.params.id);
+    if (g.mine) return `<button class="btn ghost" data-act="tab" data-to="mypage" data-mytab="groves">あなたが登録した竹林です（応募者を見る）</button>`;
+    const a = appFor(g.id);
+    if (a) return `<button class="btn" disabled>応募済みです</button>`;
+    if (isFull(g)) return `<button class="btn" disabled>定員に達しました</button>`;
+    return `<button class="btn" data-act="apply" data-id="${g.id}">この作業に応募する</button>`;
+  },
+  register() { return `<button class="btn" type="submit" form="regForm">この内容で竹林を登録する</button>`; },
+};
+
+/* ---------- シート（確認画面） ---------- */
+function renderSheet() {
+  const el = $('#sheet'), sh = state.sheet;
+  if (!sh) { el.innerHTML = ''; return; }
+  if (sh.type === 'apply') {
+    const g = grove(sh.id);
+    el.innerHTML = `<div class="scrim" data-act="closesheet"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t" data-stop>
+      <span class="grab"></span><h2 id="sh-t">この作業に応募しますか？</h2>
+      <div class="sum"><b>${esc(g.name)}</b><div>${fmtDate(g.date, g.time)}（約${g.hours}時間）</div><div>${g.tasks.join('・')}</div><div>もらえるポイント：<b class="pts">${g.pt}pt</b></div></div>
+      <div class="field"><label for="ap-msg">所有者へのメッセージ（任意）</label><textarea id="ap-msg" placeholder="例：高専の友達と2人で参加したいです。のこぎりは持っていきます。"></textarea></div>
+      <div class="row"><button class="btn ghost" data-act="closesheet">やめる</button><button class="btn" data-act="confirmapply" data-id="${g.id}">応募する</button></div>
+    </div></div>`;
+  } else if (sh.type === 'exch') {
+    const it = GOODS.find(x => x.id === sh.id);
+    el.innerHTML = `<div class="scrim" data-act="closesheet"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t" data-stop>
+      <span class="grab"></span><h2 id="sh-t">「${it.name}」と交換しますか？</h2>
+      <div class="sum"><div>使うポイント：<b class="pts">${num(it.pt)}pt</b></div><div>交換後の残り：${num(state.points - it.pt)}pt</div><div class="hint">受け取りは地域の交流センターを想定しています（デモ）</div></div>
+      <div class="row"><button class="btn ghost" data-act="closesheet">やめる</button><button class="btn sun" data-act="confirmexch" data-id="${it.id}">交換する</button></div>
+    </div></div>`;
+  }
+  setTimeout(() => el.querySelector('.sheet .btn:last-child')?.focus(), 30);
+}
+
+/* ---------- 登録フォーム ---------- */
+function bindRegister() {
+  const map = $('#pickMap');
+  map.addEventListener('click', e => {
+    const r = map.getBoundingClientRect();
+    state.regPin = { x: (e.clientX - r.left) / r.width * 360, y: (e.clientY - r.top) / r.height * 250 };
+    $('#pickPin').setAttribute('style', pct(state.regPin.x, state.regPin.y));
+  });
+  $('#r-photo').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      state.regPhoto = rd.result;
+      const drop = $('#photoDrop'); drop.querySelector('span')?.remove(); drop.querySelector('img')?.remove();
+      drop.insertAdjacentHTML('beforeend', `<img src="${state.regPhoto}" alt="選んだ写真">`);
+    };
+    rd.readAsDataURL(f);
+  });
+  $('#regForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const tasks = fd.getAll('tasks');
+    const name = fd.get('name').trim(), date = fd.get('date');
+    const errs = [];
+    if (!name) errs.push('竹林の名前を入力してください。');
+    if (!tasks.length) errs.push('必要な作業を1つ以上えらんでください。');
+    if (!date) errs.push('希望日をえらんでください。');
+    const err = $('#regErr');
+    if (errs.length) { err.innerHTML = errs.join('<br>'); err.hidden = false; err.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    let size = Number(fd.get('size')) || 500;
+    if (fd.get('unit') === 'tan') size = Math.round(size * TSUBO_TAN);
+    const g = {
+      id: ++seq, name, addr: fd.get('addr').trim() || '場所は地図で指定', x: state.regPin.x, y: state.regPin.y, size, tasks,
+      people: Math.max(1, Number(fd.get('people')) || 1), joined: 0, date, time: fd.get('time') || '09:00', hours: Number(fd.get('hours')),
+      pt: Number(fd.get('pt')), gift: fd.get('gift').trim(), owner: 'あなた', mine: true, seed: seq, photo: state.regPhoto,
+      note: fd.get('note').trim(), applicants: [],
+    };
+    state.groves.push(g);
+    state.history.unshift({ date: TODAY, text: `「${name}」を登録`, pt: 0 });
+    state.regPhoto = null; state.regPin = { x: 150, y: 130 };
+    state.stack = []; state.screen = 'registered'; state.params = { id: g.id }; render(true);
+  });
+}
+function fillDemo() {
+  const set = (id, v) => { $(id).value = v; };
+  set('#r-name', '見能林町・田んぼ横の竹林'); set('#r-addr', '阿南市見能林町（サンプル）');
+  set('#r-size', '1.5'); set('#r-unit', 'tan'); set('#r-date', '2026-10-26'); set('#r-time', '09:00');
+  set('#r-hours', '3'); set('#r-people', '4'); set('#r-pt', '300'); set('#r-gift', '切った竹は持ち帰りOK・竹炭づくりに使えます');
+  set('#r-note', '竹が田んぼの日当たりをさえぎっています。田んぼ側の竹を中心に切ってほしいです。');
+  document.querySelectorAll('#regForm input[name=tasks]').forEach(c => c.checked = c.value !== '整備');
+  state.regPin = { x: 258, y: 146 }; $('#pickPin').setAttribute('style', pct(258, 146));
+  $('#regErr').hidden = true;
+  toast('サンプルを入力しました。写真は自由に選べます。');
+}
+
+/* ---------- 操作 ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
+  if (t.dataset.act === 'closesheet' && e.target.closest('[data-stop]') && t.classList.contains('scrim')) return;
+  const id = Number(t.dataset.id);
+  switch (t.dataset.act) {
+    case 'back': back(); break;
+    case 'tab': if (t.dataset.mytab) state.myTab = t.dataset.mytab; tab(t.dataset.to); break;
+    case 'go': go(t.dataset.to); break;
+    case 'detail': go('detail', { id }); break;
+    case 'pin':
+      state.selected = id; render(false);
+      document.getElementById('card-' + id)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      break;
+    case 'filter': {
+      const k = t.dataset.t;
+      if (!k) state.filter.clear(); else state.filter.has(k) ? state.filter.delete(k) : state.filter.add(k);
+      render(false); break;
+    }
+    case 'apply': state.sheet = { type: 'apply', id }; renderSheet(); break;
+    case 'closesheet': state.sheet = null; renderSheet(); break;
+    case 'confirmapply': {
+      const g = grove(id);
+      state.applications.unshift({ id: ++seq, groveId: id, status: 'pending', msg: $('#ap-msg')?.value || '' });
+      g.joined++;
+      state.history.unshift({ date: TODAY, text: `「${g.name}」に応募`, pt: 0 });
+      state.stack = [{ screen: 'search', params: {} }]; state.screen = 'applied'; state.params = { id }; state.sheet = null; render(true);
+      break;
+    }
+    case 'approveme': {
+      const a = state.applications.find(x => x.id === id); a.status = 'approved';
+      toast(`${grove(a.groveId).owner}が応募を承認しました。参加確定です！`); render(false); break;
+    }
+    case 'complete': {
+      const a = state.applications.find(x => x.id === id), g = grove(a.groveId);
+      a.status = 'done'; state.points += g.pt;
+      state.history.unshift({ date: g.date, text: `「${g.name}」で${g.tasks.join('・')}に参加`, pt: g.pt });
+      toast(`おつかれさまでした！ ${g.pt}pt を獲得しました`); render(false); break;
+    }
+    case 'approveapp': {
+      const g = grove(id); g.applicants[Number(t.dataset.i)].ok = true;
+      toast('応募者を承認しました。参加確定の連絡が届きます（デモ）'); render(false); break;
+    }
+    case 'mytab': state.myTab = t.dataset.t; render(false); break;
+    case 'exch': state.sheet = { type: 'exch', id: t.dataset.id }; renderSheet(); break;
+    case 'confirmexch': {
+      const it = GOODS.find(x => x.id === t.dataset.id);
+      state.points -= it.pt; state.history.unshift({ date: TODAY, text: `${it.name}と交換`, pt: -it.pt });
+      state.sheet = null; render(false); toast(`「${it.name}」との交換を受け付けました（デモ）`); break;
+    }
+    case 'step': { const inp = $('#r-people'); inp.value = Math.min(30, Math.max(1, (Number(inp.value) || 1) + Number(t.dataset.d))); break; }
+    case 'filldemo': fillDemo(); break;
+    case 'showmine': state.selected = id; state.filter.clear(); state.sort = 'near'; tab('search');
+      setTimeout(() => document.getElementById('card-' + id)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50); break;
+  }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'sort') { state.sort = e.target.value; render(false); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.sheet) { state.sheet = null; renderSheet(); } });
+
+render(true);
+</script>
